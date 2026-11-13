@@ -1,0 +1,942 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14161e">
+<meta name="description" content="75 Shootout standings for the Opfikon Rams.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rams 75">
+<title>Rams 75 Shootout</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  /* Rams palette: logo navy #323950, logo orange #f95c1b */
+  --bg:#14161e; --surface:#1b1e29; --raised:#232737; --line:#2d3244; --line-strong:#3a4057;
+  --text:#eceef4; --muted:#9a9fb3; --faint:#676d84;
+  --orange:#f95c1b; --orange-hover:#ff7038; --orange-ink:#1a0b04; --orange-soft:rgba(249,92,27,.14);
+  --navy:#323950;
+  --gold:#e8b53e; --silver:#b9c0cd; --bronze:#d38b5b;
+  --up:#4cc38a; --down:#f07272;
+  --s1:#f95c1b; --s2:#4b8fe6; --s3:#2db384; --s4:#e8b53e; --s5:#d55a8b; --other:#353b50;
+
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+
+  --r-sm:6px; --r:10px; --r-lg:16px;
+  --gutter:max(16px,env(safe-area-inset-left,0px));
+  --gutter-r:max(16px,env(safe-area-inset-right,0px));
+  --tabbar:64px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:400 15px/1.45 var(--body);-webkit-font-smoothing:antialiased;
+  padding-bottom:calc(var(--tabbar) + env(safe-area-inset-bottom,0px))}
+[hidden]{display:none!important}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+svg.i{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+svg.i.sm{width:16px;height:16px}
+
+/* App bar */
+.appbar{position:sticky;top:0;z-index:20;background:rgba(20,22,30,.88);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border-bottom:1px solid transparent;padding-top:env(safe-area-inset-top,0px);transition:border-color .2s}
+.appbar.scrolled{border-bottom-color:var(--line)}
+.appbar-inner{max-width:880px;margin:0 auto;padding:10px var(--gutter-r) 10px var(--gutter);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;min-width:0}
+.brand img{width:40px;height:auto;display:block}
+.brand-text{display:flex;flex-direction:column;line-height:1}
+.eyebrow{font:600 11px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--orange)}
+.brand-title{font:800 24px/1.05 var(--display);text-transform:uppercase;letter-spacing:.01em}
+.actions{display:flex;gap:4px}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:var(--r);border:0;background:transparent;color:var(--muted);cursor:pointer}
+.icon-btn:hover{background:var(--raised);color:var(--text)}
+
+/* Page */
+.page{max-width:880px;margin:0 auto;padding:8px var(--gutter-r) 24px var(--gutter);display:flex;flex-direction:column;gap:16px}
+.view-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.view-head h1{font:800 30px/1 var(--display);text-transform:uppercase;letter-spacing:.01em;margin:0}
+.select{appearance:none;-webkit-appearance:none;background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239a9fb3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center/16px;
+  border:1px solid var(--line);border-radius:var(--r);padding:0 34px 0 12px;height:40px;font-weight:600;min-width:0;cursor:pointer}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;min-width:0}
+.card-title{font:700 13px/1 var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 14px}
+.hint{color:var(--faint);font-size:13px;margin:0}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;border-radius:var(--r);border:1px solid var(--line-strong);background:var(--raised);font-weight:600;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--faint)}
+.btn.primary{background:var(--orange);border-color:var(--orange);color:var(--orange-ink)}
+.btn.primary:hover{background:var(--orange-hover);border-color:var(--orange-hover)}
+.btn.quiet{background:transparent;border-color:transparent;color:var(--muted);height:36px;padding:0 10px}
+.btn.quiet:hover{background:var(--raised);color:var(--text)}
+.btn.danger{background:var(--down);border-color:var(--down);color:#1c0707}
+.btn:disabled{opacity:.5;cursor:default}
+
+/* Install banner */
+.banner{display:flex;align-items:flex-start;gap:12px;background:linear-gradient(135deg,var(--navy),var(--surface));border:1px solid var(--line-strong);border-radius:var(--r-lg);padding:14px 8px 14px 14px}
+.banner img{width:44px;height:44px;border-radius:10px;flex:none}
+.banner div{flex:1;min-width:0}
+.banner b{display:block;font-size:15px}
+.banner p{margin:2px 0 10px;color:var(--muted);font-size:14px}
+.banner .row{display:flex;gap:8px;flex-wrap:wrap}
+.banner .btn{height:38px;padding:0 14px}
+
+/* Hero (leader) */
+.hero{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:14px;min-width:0}
+.stat .k{font:600 11px/1 var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.stat .v{font:800 30px/1 var(--display);margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat .d{color:var(--muted);font-size:13px;margin-top:4px}
+.stat.lead{border-color:rgba(249,92,27,.45);background:linear-gradient(160deg,var(--orange-soft),var(--surface) 70%)}
+
+/* Standings */
+.board{display:flex;flex-direction:column}
+.row-p{display:grid;grid-template-columns:36px minmax(0,1fr) repeat(3,32px) 52px;align-items:center;gap:8px;padding:10px 4px;border-top:1px solid var(--line);text-decoration:none;color:inherit;cursor:pointer}
+.row-p:first-of-type{border-top:0}
+.row-p:hover{background:var(--raised);border-radius:var(--r)}
+.row-p.head{cursor:default;padding-block:0 8px;font:600 11px/1 var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.row-p.head:hover{background:none}
+.row-p .c{text-align:center;font-variant-numeric:tabular-nums;color:var(--muted)}
+.row-p .pts{text-align:right;font:800 22px/1 var(--display);font-variant-numeric:tabular-nums}
+.rk{font:800 22px/1 var(--display);color:var(--faint);text-align:center}
+.r1 .rk{color:var(--gold)}.r2 .rk{color:var(--silver)}.r3 .rk{color:var(--bronze)}
+.name{display:flex;align-items:center;gap:8px;min-width:0;font-weight:600}
+.name span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mv{display:inline-flex;align-items:center;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
+.mv.up{color:var(--up)}.mv.dn{color:var(--down)}
+.mv.new{color:var(--orange);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.medal{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;font:800 12px/1 var(--display);color:var(--bg);flex:none}
+.m1{background:var(--gold)}.m2{background:var(--silver)}.m3{background:var(--bronze)}
+
+/* Charts */
+.chart{position:relative}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart text{fill:var(--muted);font:500 11px var(--body)}
+.chart .lbl{fill:var(--text);font-weight:600;font-size:12px}
+.chart .grid line{stroke:var(--line)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;margin:0 0 10px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:12px;height:3px;border-radius:2px}
+.legend i.sq{width:10px;height:10px;border-radius:3px}
+.tip{position:absolute;z-index:5;pointer-events:none;background:var(--raised);border:1px solid var(--line-strong);border-radius:var(--r);padding:10px 12px;font-size:13px;min-width:160px;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.tip .t{font-weight:700}
+.tip .s{color:var(--muted);margin:2px 0 6px}
+.tip .r{display:flex;justify-content:space-between;gap:12px}
+.tip .sw{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px}
+
+/* Players */
+.ptiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.ptile{background:var(--raised);border-radius:var(--r);padding:12px}
+.ptile .k{font:600 11px/1 var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.ptile .v{font:800 28px/1 var(--display);margin-top:6px}
+.split{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px}
+.form{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:4px}
+.form span{aspect-ratio:1;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font:800 14px/1 var(--display);background:var(--raised);color:var(--faint)}
+.form .p1{background:var(--gold);color:var(--bg)}.form .p2{background:var(--silver);color:var(--bg)}.form .p3{background:var(--bronze);color:var(--bg)}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:10px 16px;margin:16px 0 0;font-size:14px}
+.facts dt{color:var(--muted)}.facts dd{margin:0;text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
+
+/* Games */
+.log{display:flex;flex-direction:column}
+.season-label{font:700 13px/1 var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--orange);padding:18px 0 6px}
+.season-label:first-child{padding-top:0}
+.game{display:grid;grid-template-columns:76px minmax(0,1fr) auto;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.game .dt{color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
+.pod{display:flex;flex-wrap:wrap;gap:6px 16px;min-width:0}
+.pod span{display:inline-flex;align-items:center;gap:6px;font-weight:500}
+.game .acts{display:flex;gap:2px}
+.game.editing{grid-template-columns:1fr;background:var(--raised);border-radius:var(--r);padding:14px;border-top:0}
+
+/* Record form */
+.fields{display:grid;grid-template-columns:1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field label{display:flex;align-items:center;gap:8px;font:600 13px/1 var(--body);color:var(--muted)}
+.input{height:48px;border-radius:var(--r);border:1px solid var(--line-strong);background:var(--bg);padding:0 14px;font-size:16px;min-width:0;width:100%}
+.input:focus{border-color:var(--orange);outline:none}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--line-strong);background:transparent;font-weight:500;cursor:pointer}
+.chip.on{background:var(--text);border-color:var(--text);color:var(--bg)}
+.msg{min-height:20px;font-size:14px;color:var(--muted)}
+.msg.err{color:var(--down)}.msg.warn{color:var(--gold)}
+.form-actions{display:flex;gap:8px}
+.form-actions .btn{flex:1}
+
+/* Footer */
+.foot{display:flex;justify-content:center;align-items:center;gap:8px;padding:8px 0 4px;color:var(--faint);font-size:12px;letter-spacing:.04em}
+.foot b{color:var(--muted);font-weight:600}
+.foot a{color:inherit;text-decoration:none}
+.foot a:hover b{color:var(--orange)}
+
+/* Tab bar */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(20,22,30,.94);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid var(--line);
+  padding:0 var(--gutter-r) env(safe-area-inset-bottom,0px) var(--gutter)}
+.tabbar-inner{max-width:560px;margin:0 auto;display:flex;height:var(--tabbar)}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:0;background:none;color:var(--faint);font:600 11px/1 var(--body);letter-spacing:.04em;cursor:pointer;text-decoration:none}
+.tab[aria-current="page"]{color:var(--text)}
+.tab[aria-current="page"] svg{color:var(--orange)}
+.tab.add .bubble{width:44px;height:32px;border-radius:var(--r);background:var(--orange);color:var(--orange-ink);display:flex;align-items:center;justify-content:center}
+.tab.add[aria-current="page"] .bubble{background:var(--orange-hover)}
+.tab.add .bubble svg{color:var(--orange-ink)}
+
+/* Sheets */
+.sheet{position:fixed;inset:0;z-index:40;background:rgba(6,7,11,.6);display:flex;align-items:flex-end;justify-content:center}
+.sheet-panel{background:var(--surface);border:1px solid var(--line-strong);border-bottom:0;border-radius:var(--r-lg) var(--r-lg) 0 0;width:100%;max-width:520px;max-height:88vh;overflow:auto;
+  padding:20px var(--gutter-r) calc(20px + env(safe-area-inset-bottom,0px)) var(--gutter)}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.sheet-head h2{font:800 24px/1 var(--display);text-transform:uppercase;margin:0}
+.sheet p{color:var(--muted);margin:0 0 14px}
+.steps{list-style:none;counter-reset:s;margin:0 0 16px;padding:0;display:flex;flex-direction:column;gap:12px}
+.steps li{counter-increment:s;display:flex;gap:12px;align-items:flex-start}
+.steps li::before{content:counter(s);flex:none;width:26px;height:26px;border-radius:50%;background:var(--orange-soft);color:var(--orange);font:800 15px/26px var(--display);text-align:center}
+.steps small{display:block;color:var(--faint);margin-top:2px}
+.steps svg.i{width:16px;height:16px;vertical-align:-3px}
+.sheet .stack{display:flex;flex-direction:column;gap:10px}
+.kv{display:flex;justify-content:space-between;gap:12px;font-size:14px;padding:10px 0;border-top:1px solid var(--line)}
+.kv span:first-child{color:var(--muted)}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--tabbar) + 14px + env(safe-area-inset-bottom,0px));z-index:50;
+  display:flex;align-items:center;gap:12px;background:var(--text);color:var(--bg);border-radius:var(--r);padding:10px 12px 10px 16px;font-weight:600;font-size:14px;max-width:calc(100% - 32px);box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.toast button{border:0;background:none;color:#c2410c;font-weight:700;cursor:pointer;padding:4px}
+.empty{color:var(--muted);text-align:center;padding:32px 0}
+.skeleton{height:220px;border-radius:var(--r-lg);background:linear-gradient(90deg,var(--surface),var(--raised),var(--surface));background-size:200% 100%;animation:sk 1.2s linear infinite}
+@keyframes sk{to{background-position:-200% 0}}
+
+@media (min-width:720px){
+  .fields{grid-template-columns:160px repeat(3,minmax(0,1fr))}
+  .row-p{grid-template-columns:44px minmax(0,1fr) repeat(4,56px) 64px}
+  .hero .stat .v{font-size:34px}
+}
+@media (max-width:719px){
+  .row-p .wide{display:none}
+  .split{grid-template-columns:1fr}
+  .game{grid-template-columns:1fr auto}
+  .game .dt{grid-column:1/-1;margin-bottom:-6px}
+  .hero{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .hero .stat.lead{grid-column:1/-1}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="appbar" id="appbar">
+  <div class="appbar-inner">
+    <a class="brand" href="#table">
+      <img src="logo.png" alt="Opfikon Rams" width="40" height="37">
+      <span class="brand-text"><span class="eyebrow">Opfikon Rams</span><span class="brand-title">75 Shootout</span></span>
+    </a>
+    <div class="actions">
+      <button class="icon-btn" id="btn-share" type="button" aria-label="Share app"></button>
+      <button class="icon-btn" id="btn-settings" type="button" aria-label="Settings"></button>
+    </div>
+  </div>
+</header>
+
+<main class="page" id="view"></main>
+
+<nav class="tabbar" aria-label="Sections"><div class="tabbar-inner" id="tabs"></div></nav>
+
+<div class="sheet" id="how" hidden role="dialog" aria-modal="true" aria-labelledby="how-title"><div class="sheet-panel" id="how-panel"></div></div>
+<div class="sheet" id="settings" hidden role="dialog" aria-modal="true" aria-labelledby="set-title"><div class="sheet-panel" id="settings-panel"></div></div>
+<div class="toast" id="toast" role="status" hidden><span id="toast-txt"></span><button id="toast-act" type="button" hidden></button></div>
+
+<script>
+(() => {
+'use strict';
+
+const APP_VERSION = '1.0.0';
+const REPO = { owner: 'haruku08', name: 'opfikon-rams', path: 'data/games.json', branch: 'main' };
+const APP_URL = 'https://haruku08.github.io/opfikon-rams/';
+const HARUKU_URL = 'https://haruku08.github.io/workouts/';
+const PTS = [3, 2, 1];
+const SERIES = ['--s1', '--s2', '--s3', '--s4', '--s5'];
+
+/* ---------- Icons (Lucide, ISC) ---------- */
+const ICON = {
+  trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+  chart: '<path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="m19 9-5 5-4-4-3 3"/>',
+  user: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  list: '<path d="M3 12h.01"/><path d="M3 18h.01"/><path d="M3 6h.01"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M8 6h13"/>',
+  plus: '<path d="M5 12h14"/><path d="M12 5v14"/>',
+  settings: '<path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/>',
+  share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/>',
+  iosShare: '<path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/>',
+  download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
+  phone: '<rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>',
+  pencil: '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>',
+  trash: '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>',
+  x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  up: '<path d="m18 15-6-6-6 6"/>',
+  down: '<path d="m6 9 6 6 6-6"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  lock: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  copy: '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+};
+const icon = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICON[n]}</svg>`;
+
+/* ---------- Helpers ---------- */
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('rams.' + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('rams.' + k, JSON.stringify(v)); } catch {} },
+  del(k) { try { localStorage.removeItem('rams.' + k); } catch {} },
+};
+const pad = (n) => String(n).padStart(2, '0');
+const today = () => { const t = new Date(); return `${t.getFullYear()}-${pad(t.getMonth() + 1)}-${pad(t.getDate())}`; };
+const seasonOf = (d) => { const y = +d.slice(0, 4), m = +d.slice(5, 7), s = m >= 8 ? y : y - 1; return `${s}/${pad((s + 1) % 100)}`; };
+const fmtDate = (d, opt = 'long') => {
+  const [y, m, dd] = d.split('-').map(Number);
+  const o = opt === 'short' ? { day: 'numeric', month: 'short' } : { day: 'numeric', month: 'short', year: 'numeric' };
+  return new Date(y, m - 1, dd).toLocaleDateString('en-GB', o);
+};
+const byDate = (a, b) => (a.d < b.d ? -1 : a.d > b.d ? 1 : 0);
+const gameKey = (g) => g.d + '|' + g.p.join('|');
+
+/* ---------- State ---------- */
+const st = {
+  games: store.get('games', null) || [],
+  sha: null,
+  loaded: false,
+  tab: 'table',
+  season: null,
+  player: null,
+  editKey: null,
+  delKey: null,
+  saving: false,
+  token: store.get('token', ''),
+  form: { d: today(), p: ['', '', ''] },
+};
+st.games.sort(byDate);
+
+const isAdmin = () => !!st.token;
+const seasons = () => [...new Set(st.games.map((g) => seasonOf(g.d)))].sort().reverse();
+const scoped = () => (st.season === 'all' ? st.games : st.games.filter((g) => seasonOf(g.d) === st.season));
+const players = () => [...new Set(st.games.flatMap((g) => g.p))];
+const canon = (name) => {
+  const n = name.trim().replace(/\s+/g, ' ');
+  if (!n) return '';
+  return players().find((p) => p.toLowerCase() === n.toLowerCase()) || n;
+};
+
+function standings(list) {
+  const m = new Map();
+  list.forEach((g) => g.p.forEach((n, i) => {
+    const r = m.get(n) || { name: n, pts: 0, c: [0, 0, 0], last: '' };
+    r.pts += PTS[i]; r.c[i]++; r.last = g.d; m.set(n, r);
+  }));
+  const rows = [...m.values()].sort((a, b) => b.pts - a.pts || b.c[0] - a.c[0] || b.c[1] - a.c[1] || (a.last < b.last ? 1 : -1));
+  let prev = null, rank = 0;
+  rows.forEach((r, i) => {
+    r.pod = r.c[0] + r.c[1] + r.c[2];
+    if (!prev || r.pts !== prev.pts || r.c[0] !== prev.c[0] || r.c[1] !== prev.c[1]) rank = i + 1;
+    r.rank = rank; prev = r;
+  });
+  return rows;
+}
+const rankMap = (rows) => Object.fromEntries(rows.map((r) => [r.name, r.rank]));
+
+/* ---------- GitHub data ---------- */
+const API = `https://api.github.com/repos/${REPO.owner}/${REPO.name}/contents/${REPO.path}`;
+const b64decode = (s) => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\s/g, '')), (c) => c.charCodeAt(0)));
+const b64encode = (s) => { const b = new TextEncoder().encode(s); let out = ''; for (let i = 0; i < b.length; i += 0x8000) out += String.fromCharCode(...b.subarray(i, i + 0x8000)); return btoa(out); };
+const serialize = (games) => '{"games":[\n' + games.map((g) => JSON.stringify({ d: g.d, p: g.p })).join(',\n') + '\n]}\n';
+const headers = (auth = true) => {
+  const h = { Accept: 'application/vnd.github+json' };
+  if (auth && st.token) h.Authorization = 'Bearer ' + st.token;
+  return h;
+};
+
+async function fetchGames() {
+  try {
+    const r = await fetch(`${API}?ref=${REPO.branch}&t=${Date.now()}`, { headers: headers(), cache: 'no-store' });
+    if (!r.ok) throw new Error(r.status);
+    const j = await r.json();
+    return { games: JSON.parse(b64decode(j.content)).games, sha: j.sha };
+  } catch {
+    const r = await fetch(`data/games.json?t=${Date.now()}`, { cache: 'no-store' });
+    if (!r.ok) throw new Error('offline');
+    return { games: (await r.json()).games, sha: null };
+  }
+}
+
+let lastLoad = 0;
+async function load(quiet) {
+  try {
+    const { games, sha } = await fetchGames();
+    const changed = JSON.stringify(games) !== JSON.stringify(st.games);
+    st.games = games.slice().sort(byDate);
+    st.sha = sha;
+    st.loaded = true;
+    lastLoad = Date.now();
+    store.set('games', st.games);
+    if (!st.season || (st.season !== 'all' && !seasons().includes(st.season))) st.season = seasons()[0] || seasonOf(today());
+    if (changed || !quiet) render();
+  } catch {
+    st.loaded = true;
+    if (!st.season) st.season = seasons()[0] || seasonOf(today());
+    render();
+    if (!quiet) toast('Offline. Showing saved results.');
+  }
+}
+
+async function commit(transform, message) {
+  if (!st.token) return;
+  st.saving = true; render();
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const head = await fetch(`${API}?ref=${REPO.branch}&t=${Date.now()}`, { headers: headers(), cache: 'no-store' });
+      if (head.status === 401) throw Object.assign(new Error('auth'), { code: 401 });
+      const cur = head.ok ? await head.json() : null;
+      const base = cur ? JSON.parse(b64decode(cur.content)).games : st.games;
+      const next = transform(base.slice()).sort(byDate);
+      const r = await fetch(API, {
+        method: 'PUT',
+        headers: { ...headers(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, content: b64encode(serialize(next)), branch: REPO.branch, ...(cur ? { sha: cur.sha } : {}) }),
+      });
+      if (r.status === 409 || r.status === 422) continue;
+      if (r.status === 401 || r.status === 403 || r.status === 404) throw Object.assign(new Error('auth'), { code: r.status });
+      if (!r.ok) throw new Error(r.status);
+      const j = await r.json();
+      st.games = next; st.sha = j.content.sha; store.set('games', next);
+      st.saving = false;
+      return true;
+    } catch (e) {
+      st.saving = false; render();
+      toast(e.code ? 'Admin key rejected. Check it in Settings.' : 'Not saved. Check your connection.');
+      return false;
+    }
+  }
+  st.saving = false; render();
+  toast('Not saved. Someone else saved at the same time, try again.');
+  return false;
+}
+
+/* ---------- Routing ---------- */
+const TABS = [
+  { id: 'table', label: 'Table', icon: 'trophy' },
+  { id: 'race', label: 'Race', icon: 'chart' },
+  { id: 'add', label: 'Add', icon: 'plus', admin: true },
+  { id: 'players', label: 'Players', icon: 'user' },
+  { id: 'games', label: 'Games', icon: 'list' },
+];
+function readHash() {
+  const h = location.hash.slice(1);
+  const t = TABS.find((x) => x.id === h && (!x.admin || isAdmin()));
+  st.tab = t ? t.id : 'table';
+}
+addEventListener('hashchange', () => { readHash(); st.editKey = st.delKey = null; render(); scrollTo(0, 0); });
+
+/* ---------- Render ---------- */
+function renderTabs() {
+  $('tabs').innerHTML = TABS.filter((t) => !t.admin || isAdmin()).map((t) => {
+    const cur = st.tab === t.id ? ' aria-current="page"' : '';
+    if (t.id === 'add') return `<a class="tab add" href="#add"${cur}><span class="bubble">${icon('plus')}</span>${t.label}</a>`;
+    return `<a class="tab" href="#${t.id}"${cur}>${icon(t.icon)}${t.label}</a>`;
+  }).join('');
+}
+
+function seasonSelect() {
+  const opts = seasons().map((s) => `<option value="${s}"${s === st.season ? ' selected' : ''}>${s}</option>`).join('');
+  return `<select class="select" id="season" aria-label="Season">${opts}<option value="all"${st.season === 'all' ? ' selected' : ''}>All time</option></select>`;
+}
+const seasonName = () => (st.season === 'all' ? 'All time' : st.season);
+const footer = () => `<footer class="foot"><a href="${HARUKU_URL}" target="_blank" rel="noopener">Powered by <b>Haruku</b></a><span aria-hidden="true">·</span><span class="num">v${APP_VERSION}</span></footer>`;
+
+function render() {
+  renderTabs();
+  let html = '';
+  if (!st.loaded && !st.games.length) html = '<div class="skeleton"></div>';
+  else if (st.tab === 'race') html = viewRace();
+  else if (st.tab === 'players') html = viewPlayers();
+  else if (st.tab === 'games') html = viewGames();
+  else if (st.tab === 'add') html = viewAdd();
+  else html = viewTable();
+  $('view').innerHTML = html + footer();
+  if (st.tab === 'race') drawRace();
+  if (st.tab === 'players') drawSeasonBars();
+  if (st.tab === 'add') syncForm();
+  if (st.tab === 'table') Install.mount();
+}
+
+function viewTable() {
+  const list = scoped();
+  let h = `<div id="install-slot"></div><div class="view-head"><h1>Standings</h1>${seasonSelect()}</div>`;
+  if (!list.length) return h + `<div class="card empty">No games in ${seasonName()} yet.</div>`;
+  const rows = standings(list);
+  const before = rankMap(standings(list.slice(0, -1)));
+  const last = list[list.length - 1];
+  const lead = rows[0], gap = rows[1] ? lead.pts - rows[1].pts : 0;
+  h += `<div class="hero">
+    <div class="stat lead"><div class="k">Leader</div><div class="v">${esc(lead.name)}</div><div class="d num">${lead.pts} pts${rows[1] ? ` · ${gap ? '+' + gap : 'level'}` : ''}</div></div>
+    <div class="stat"><div class="k">Games</div><div class="v num">${list.length}</div><div class="d">Last ${fmtDate(last.d, 'short')}</div></div>
+    <div class="stat"><div class="k">Last winner</div><div class="v">${esc(last.p[0])}</div><div class="d">${fmtDate(last.d, 'short')}</div></div>
+  </div>`;
+  h += `<section class="card"><div class="board">
+    <div class="row-p head"><span class="c">#</span><span>Player</span><span class="c">1st</span><span class="c">2nd</span><span class="c">3rd</span><span class="c wide">Pod.</span><span class="c" style="text-align:right">Pts</span></div>`;
+  rows.forEach((r) => {
+    const b = before[r.name];
+    let mv = '';
+    if (list.length > 1) {
+      if (b === undefined) mv = '<span class="mv new">New</span>';
+      else if (b > r.rank) mv = `<span class="mv up">${icon('up', 'sm')}${b - r.rank}</span>`;
+      else if (b < r.rank) mv = `<span class="mv dn">${icon('down', 'sm')}${r.rank - b}</span>`;
+    }
+    h += `<a class="row-p r${r.rank}" href="#players" data-player="${esc(r.name)}">
+      <span class="rk">${r.rank}</span>
+      <span class="name"><span>${esc(r.name)}</span>${mv}</span>
+      <span class="c">${r.c[0]}</span><span class="c">${r.c[1]}</span><span class="c">${r.c[2]}</span><span class="c wide">${r.pod}</span>
+      <span class="pts">${r.pts}</span></a>`;
+  });
+  return h + `</div></section><p class="hint">1st 3 pts · 2nd 2 pts · 3rd 1 pt. Ties go to more wins, then more 2nds.</p>`;
+}
+
+function viewRace() {
+  return `<div class="view-head"><h1>Race</h1>${seasonSelect()}</div><section class="card"><div id="race" class="chart"></div></section>`;
+}
+
+function viewGames() {
+  const list = scoped().slice().reverse();
+  let h = `<div class="view-head"><h1>Games</h1>${seasonSelect()}</div>`;
+  if (!list.length) return h + `<div class="card empty">No games in ${seasonName()} yet.</div>`;
+  h += '<section class="card"><div class="log">';
+  let cur = '';
+  list.forEach((g) => {
+    const k = gameKey(g), s = seasonOf(g.d);
+    if (st.season === 'all' && s !== cur) { cur = s; h += `<div class="season-label">${s}</div>`; }
+    if (st.editKey === k) {
+      h += `<div class="game editing"><div class="fields">
+        <div class="field"><label for="e-d">Date</label><input class="input" type="date" id="e-d" value="${g.d}"></div>
+        ${[0, 1, 2].map((i) => `<div class="field"><label for="e-p${i}"><span class="medal m${i + 1}">${i + 1}</span>${['1st', '2nd', '3rd'][i]}</label><input class="input" type="text" id="e-p${i}" list="plist" autocomplete="off" value="${esc(g.p[i])}"></div>`).join('')}
+        </div>${datalist()}<div class="msg" id="e-msg"></div>
+        <div class="form-actions"><button class="btn" type="button" data-act="ecancel">Cancel</button><button class="btn primary" type="button" data-act="esave"${st.saving ? ' disabled' : ''}>${st.saving ? 'Saving…' : 'Save'}</button></div></div>`;
+      return;
+    }
+    let acts = '';
+    if (isAdmin()) {
+      acts = st.delKey === k
+        ? `<div class="acts"><button class="btn quiet" type="button" data-act="delno">Keep</button><button class="btn danger" type="button" data-act="delyes" data-k="${esc(k)}"${st.saving ? ' disabled' : ''}>${icon('trash', 'sm')}Delete</button></div>`
+        : `<div class="acts"><button class="icon-btn" type="button" data-act="edit" data-k="${esc(k)}" aria-label="Edit">${icon('pencil', 'sm')}</button><button class="icon-btn" type="button" data-act="del" data-k="${esc(k)}" aria-label="Delete">${icon('trash', 'sm')}</button></div>`;
+    }
+    h += `<div class="game"><span class="dt">${fmtDate(g.d, st.season === 'all' ? 'long' : 'short')}</span><div class="pod">${g.p.map((n, i) => `<span><span class="medal m${i + 1}">${i + 1}</span>${esc(n)}</span>`).join('')}</div>${acts || '<span></span>'}</div>`;
+  });
+  return h + '</div></section>';
+}
+
+const datalist = () => `<datalist id="plist">${players().sort().map((n) => `<option value="${esc(n)}">`).join('')}</datalist>`;
+
+function viewAdd() {
+  const f = st.form;
+  const recent = [];
+  for (let i = st.games.length - 1; i >= 0 && recent.length < 18; i--) st.games[i].p.forEach((n) => { if (!recent.includes(n) && recent.length < 18) recent.push(n); });
+  return `<div class="view-head"><h1>New game</h1></div>
+  <section class="card"><div class="fields">
+    <div class="field"><label for="f-d">Date</label><input class="input" type="date" id="f-d" value="${f.d}"></div>
+    ${[0, 1, 2].map((i) => `<div class="field"><label for="f-p${i}"><span class="medal m${i + 1}">${i + 1}</span>${['1st · 3 pts', '2nd · 2 pts', '3rd · 1 pt'][i]}</label><input class="input" type="text" id="f-p${i}" list="plist" autocomplete="off" autocapitalize="words" placeholder="Name" value="${esc(f.p[i])}"></div>`).join('')}
+  </div>${datalist()}</section>
+  <section class="card"><h2 class="card-title">Recent players</h2><div class="chips" id="chips">${recent.map((n) => `<button class="chip" type="button" data-chip="${esc(n)}">${esc(n)}</button>`).join('')}</div></section>
+  <div class="msg" id="f-msg"></div>
+  <div class="form-actions"><button class="btn" type="button" data-act="fclear">Clear</button><button class="btn primary" type="button" id="f-save"${st.saving ? ' disabled' : ''}>${st.saving ? 'Saving…' : `${icon('check')}Save game`}</button></div>`;
+}
+
+function syncForm() {
+  const picked = st.form.p.map(canon);
+  document.querySelectorAll('[data-chip]').forEach((c) => c.classList.toggle('on', picked.includes(c.dataset.chip)));
+  const dup = st.games.some((g) => g.d === st.form.d);
+  setMsg('f-msg', dup ? `A game on ${fmtDate(st.form.d)} already exists. Saving adds another.` : '', dup ? 'warn' : '');
+}
+
+function playerStats(name) {
+  const all = standings(st.games).find((r) => r.name === name);
+  const by = new Map();
+  st.games.forEach((g) => {
+    const s = seasonOf(g.d), i = g.p.indexOf(name);
+    const b = by.get(s) || { s, c: [0, 0, 0], pts: 0, games: 0 };
+    b.games++; if (i >= 0) { b.c[i]++; b.pts += PTS[i]; } by.set(s, b);
+  });
+  let best = 0, cur = 0;
+  st.games.forEach((g) => { if (g.p.includes(name)) { cur++; best = Math.max(best, cur); } else cur = 0; });
+  const list = [...by.values()].sort((a, b) => (a.s < b.s ? -1 : 1));
+  const ranks = Object.fromEntries(list.map((b) => [b.s, rankMap(standings(st.games.filter((g) => seasonOf(g.d) === b.s)))[name]]));
+  const bestS = list.slice().sort((a, b) => b.pts - a.pts)[0];
+  const first = st.games.find((g) => g.p.includes(name));
+  return { all, seasons: list, best, streak: cur, ranks, bestS, first };
+}
+
+function viewPlayers() {
+  const rows = standings(st.games);
+  if (!rows.length) return '<div class="card empty">No players yet.</div>';
+  if (!st.player || !rows.some((r) => r.name === st.player)) st.player = (standings(scoped())[0] || rows[0]).name;
+  const p = playerStats(st.player), a = p.all;
+  const opts = rows.slice().sort((x, y) => x.name.localeCompare(y.name)).map((r) => `<option${r.name === st.player ? ' selected' : ''}>${esc(r.name)}</option>`).join('');
+  let h = `<div class="view-head"><h1>${esc(st.player)}</h1><select class="select" id="pick" aria-label="Player">${opts}</select></div>
+  <section class="card"><div class="ptiles">
+    ${[['Points', a.pts], ['Podiums', a.pod], ['Rate', Math.round((a.pod / st.games.length) * 100) + '%'], ['1st', a.c[0]], ['2nd', a.c[1]], ['3rd', a.c[2]]].map(([k, v]) => `<div class="ptile"><div class="k">${k}</div><div class="v num">${v}</div></div>`).join('')}
+  </div></section>
+  <div class="split">
+    <section class="card"><h2 class="card-title">Points by season</h2>
+      <div class="legend"><span><i class="sq" style="background:var(--gold)"></i>1st</span><span><i class="sq" style="background:var(--silver)"></i>2nd</span><span><i class="sq" style="background:var(--bronze)"></i>3rd</span></div>
+      <div id="sbars" class="chart"></div></section>
+    <section class="card"><h2 class="card-title">Last 12 games</h2><div class="form">
+      ${st.games.slice(-12).map((g) => { const i = g.p.indexOf(st.player); return `<span class="${i >= 0 ? 'p' + (i + 1) : ''}" title="${fmtDate(g.d)}">${i >= 0 ? i + 1 : '–'}</span>`; }).join('')}
+      </div><dl class="facts">
+      <dt>Best season</dt><dd>${p.bestS.s} · ${p.bestS.pts} pts${p.ranks[p.bestS.s] ? ` · #${p.ranks[p.bestS.s]}` : ''}</dd>
+      <dt>Longest streak</dt><dd>${p.best} ${p.best === 1 ? 'game' : 'games'}</dd>
+      <dt>Current streak</dt><dd>${p.streak}</dd>
+      <dt>First podium</dt><dd>${fmtDate(p.first.d)}</dd>
+      <dt>Last podium</dt><dd>${fmtDate(a.last)}</dd>
+      </dl></section>
+  </div>`;
+  if (isAdmin()) {
+    h += `<section class="card"><h2 class="card-title">Rename or merge</h2><div class="form-actions">
+      <input class="input" type="text" id="rn" list="plist" placeholder="New name" autocomplete="off">${datalist()}
+      <button class="btn" type="button" data-act="rename" style="flex:none"${st.saving ? ' disabled' : ''}>Apply</button></div>
+      <div class="msg" id="rn-msg">An existing name merges both players.</div></section>`;
+  }
+  return h;
+}
+
+/* ---------- Charts ---------- */
+function niceScale(v) {
+  for (const s of [5, 10, 20, 25, 50, 100, 200]) if (v / s <= 5) return { max: Math.ceil(v / s) * s || s, step: s };
+  return { max: v, step: v };
+}
+function placeTip(tip, box, ev, dy) {
+  tip.hidden = false;
+  const bx = box.getBoundingClientRect();
+  let left = ev.clientX - bx.left + 14;
+  if (left + tip.offsetWidth > bx.width) left = ev.clientX - bx.left - tip.offsetWidth - 14;
+  tip.style.left = Math.max(0, left) + 'px';
+  tip.style.top = Math.max(0, ev.clientY - bx.top - dy) + 'px';
+}
+
+function drawRace() {
+  const box = $('race'); if (!box) return;
+  const list = scoped();
+  if (!list.length) { box.innerHTML = `<p class="empty">No games in ${seasonName()} yet.</p>`; return; }
+  const rows = standings(list), names = rows.map((r) => r.name), top = names.slice(0, 5);
+  const cum = Object.fromEntries(names.map((n) => [n, [0]]));
+  list.forEach((g) => names.forEach((n) => { const i = g.p.indexOf(n), a = cum[n]; a.push(a[a.length - 1] + (i >= 0 ? PTS[i] : 0)); }));
+  const W = Math.max(300, box.clientWidth), H = Math.round(Math.min(420, Math.max(260, W * 0.62)));
+  const ml = 30, mr = W < 500 ? 74 : 92, mt = 10, mb = 26, iw = W - ml - mr, ih = H - mt - mb, n = list.length;
+  const ys = niceScale(rows[0].pts);
+  const X = (i) => ml + (i / n) * iw, Y = (v) => mt + ih - (v / ys.max) * ih;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Cumulative points across ${n} games"><g class="grid">`;
+  for (let v = 0; v <= ys.max; v += ys.step) s += `<line x1="${ml}" x2="${ml + iw}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${ml - 6}" y="${Y(v) + 4}" text-anchor="end">${v}</text>`;
+  s += '</g>';
+  const ticks = Math.min(n, W < 500 ? 3 : 6);
+  for (let t = 0; t <= ticks; t++) {
+    const gi = Math.round((t / ticks) * (n - 1));
+    s += `<text x="${X(gi + 1)}" y="${H - 6}" text-anchor="${t === 0 ? 'start' : t === ticks ? 'end' : 'middle'}">${fmtDate(list[gi].d, st.season === 'all' ? 'long' : 'short')}</text>`;
+  }
+  const path = (a) => a.map((v, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)} ${Y(v).toFixed(1)}`).join('');
+  names.slice().reverse().forEach((nm) => { if (!top.includes(nm)) s += `<path d="${path(cum[nm])}" fill="none" stroke="var(--other)" stroke-width="1.25" stroke-linejoin="round"/>`; });
+  top.slice().reverse().forEach((nm) => { s += `<path d="${path(cum[nm])}" fill="none" stroke="var(${SERIES[top.indexOf(nm)]})" stroke-width="2.25" stroke-linejoin="round" stroke-linecap="round"/>`; });
+  const labs = top.map((nm, k) => ({ nm, k, v: cum[nm][n], y: Y(cum[nm][n]) })).sort((a, b) => a.y - b.y);
+  for (let i = 1; i < labs.length; i++) if (labs[i].y - labs[i - 1].y < 15) labs[i].y = labs[i - 1].y + 15;
+  labs.forEach((l) => { s += `<circle cx="${X(n)}" cy="${Y(l.v)}" r="4" fill="var(${SERIES[l.k]})" stroke="var(--surface)" stroke-width="2"/><text class="lbl" x="${X(n) + 10}" y="${l.y + 4}">${esc(l.nm)} <tspan style="fill:var(--muted);font-weight:500">${l.v}</tspan></text>`; });
+  s += `<line id="xh" y1="${mt}" y2="${mt + ih}" stroke="var(--faint)" stroke-dasharray="3 3" visibility="hidden"/><rect id="hit" x="${ml}" y="${mt}" width="${iw}" height="${ih}" fill="transparent"/></svg>`;
+  const legend = `<div class="legend">${top.map((nm, k) => `<span><i style="background:var(${SERIES[k]})"></i>${esc(nm)}</span>`).join('')}${names.length > 5 ? '<span><i style="background:var(--other)"></i>Others</span>' : ''}</div>`;
+  box.innerHTML = legend + s + '<div class="tip" hidden></div>';
+  const svg = box.querySelector('svg'), tip = box.querySelector('.tip'), xh = box.querySelector('#xh'), hit = box.querySelector('#hit');
+  const move = (ev) => {
+    const r = svg.getBoundingClientRect(), px = (ev.clientX - r.left) * (W / r.width);
+    const gi = Math.max(1, Math.min(n, Math.round(((px - ml) / iw) * n))), g = list[gi - 1];
+    xh.setAttribute('x1', X(gi)); xh.setAttribute('x2', X(gi)); xh.setAttribute('visibility', 'visible');
+    const lead = names.map((nm) => [nm, cum[nm][gi]]).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    tip.innerHTML = `<div class="t">${fmtDate(g.d)}</div><div class="s">${g.p.map((x, i) => `${i + 1}. ${esc(x)}`).join('  ')}</div>` +
+      lead.map(([nm, v]) => { const k = top.indexOf(nm); return `<div class="r"><span><span class="sw" style="background:var(${k >= 0 ? SERIES[k] : '--other'})"></span>${esc(nm)}</span><span class="num">${v}</span></div>`; }).join('');
+    placeTip(tip, box, ev, 20);
+  };
+  hit.addEventListener('pointermove', move);
+  hit.addEventListener('pointerdown', move);
+  hit.addEventListener('pointerleave', () => { tip.hidden = true; xh.setAttribute('visibility', 'hidden'); });
+}
+
+function drawSeasonBars() {
+  const box = $('sbars'); if (!box) return;
+  const p = playerStats(st.player), data = p.seasons;
+  const W = Math.max(260, box.clientWidth), H = 220, ml = 28, mr = 4, mt = 18, mb = 24, iw = W - ml - mr, ih = H - mt - mb;
+  const ys = niceScale(Math.max(3, ...data.map((d) => d.pts)));
+  const slot = iw / data.length, bw = Math.min(40, slot * 0.6), Y = (v) => mt + ih - (v / ys.max) * ih;
+  const cols = ['var(--gold)', 'var(--silver)', 'var(--bronze)'];
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Points per season"><g class="grid">`;
+  for (let v = 0; v <= ys.max; v += ys.step) s += `<line x1="${ml}" x2="${ml + iw}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${ml - 6}" y="${Y(v) + 4}" text-anchor="end">${v}</text>`;
+  s += '</g>';
+  data.forEach((d, i) => {
+    const x = ml + slot * i + (slot - bw) / 2;
+    let base = 0;
+    const segs = [0, 1, 2].filter((k) => d.c[k]);
+    segs.forEach((k, j) => {
+      const val = d.c[k] * PTS[k], y1 = Y(base + val), h = Math.max(1.5, Y(base) - y1 - (j ? 2 : 0));
+      s += `<rect x="${x}" y="${y1}" width="${bw}" height="${h}" rx="${j === segs.length - 1 ? 4 : 0}" fill="${cols[k]}"/>`;
+      base += val;
+    });
+    if (d.pts) s += `<text class="lbl" x="${x + bw / 2}" y="${Y(d.pts) - 6}" text-anchor="middle">${d.pts}</text>`;
+    s += `<text x="${x + bw / 2}" y="${H - 6}" text-anchor="middle">${d.s.slice(2)}</text>`;
+    s += `<rect class="hb" data-i="${i}" x="${ml + slot * i}" y="${mt}" width="${slot}" height="${ih}" fill="transparent"/>`;
+  });
+  box.innerHTML = s + '</svg><div class="tip" hidden></div>';
+  const tip = box.querySelector('.tip');
+  box.querySelectorAll('.hb').forEach((r) => {
+    const show = (ev) => {
+      const d = data[+r.dataset.i], rk = p.ranks[d.s];
+      tip.innerHTML = `<div class="t">${d.s}${rk ? ` · #${rk}` : ''}</div><div class="r"><span>Points</span><span class="num">${d.pts}</span></div><div class="r"><span>1st / 2nd / 3rd</span><span class="num">${d.c.join(' / ')}</span></div><div class="r"><span>Games played</span><span class="num">${d.games}</span></div>`;
+      placeTip(tip, box, ev, 80);
+    };
+    r.addEventListener('pointermove', show);
+    r.addEventListener('pointerdown', show);
+    r.addEventListener('pointerleave', () => { tip.hidden = true; });
+  });
+}
+
+/* ---------- Toast ---------- */
+let toastTimer;
+function toast(text, action) {
+  $('toast-txt').textContent = text;
+  const a = $('toast-act');
+  a.hidden = !action;
+  if (action) { a.textContent = action.label; a.onclick = () => { $('toast').hidden = true; action.run(); }; }
+  $('toast').hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { $('toast').hidden = true; }, action ? 8000 : 3200);
+}
+function setMsg(id, text, cls = '') { const el = $(id); if (el) { el.textContent = text; el.className = 'msg' + (cls ? ' ' + cls : ''); } }
+
+/* ---------- Validation ---------- */
+function validate(d, names, msgId) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) { setMsg(msgId, 'Pick a date.', 'err'); return null; }
+  const p = names.map(canon);
+  if (p.some((x) => !x)) { setMsg(msgId, 'Fill in all three places.', 'err'); return null; }
+  if (new Set(p.map((x) => x.toLowerCase())).size < 3) { setMsg(msgId, 'One place per player.', 'err'); return null; }
+  return p;
+}
+
+/* ---------- Events ---------- */
+const view = $('view');
+view.addEventListener('change', (e) => {
+  const t = e.target;
+  if (t.id === 'season') { st.season = t.value; st.editKey = st.delKey = null; render(); }
+  if (t.id === 'pick') { st.player = t.value; render(); }
+});
+view.addEventListener('input', (e) => {
+  const t = e.target, m = /^f-p(\d)$/.exec(t.id);
+  if (m) { st.form.p[+m[1]] = t.value; syncForm(); }
+  if (t.id === 'f-d') { st.form.d = t.value; syncForm(); }
+});
+view.addEventListener('click', async (e) => {
+  const pl = e.target.closest('[data-player]');
+  if (pl) { st.player = pl.dataset.player; return; }
+
+  const chip = e.target.closest('[data-chip]');
+  if (chip) {
+    const n = chip.dataset.chip, f = st.form, at = f.p.map(canon).indexOf(n);
+    if (at >= 0) f.p[at] = '';
+    else {
+      const free = f.p.findIndex((x) => !x.trim());
+      if (free < 0) { setMsg('f-msg', 'All places filled. Tap a name to clear it.', 'warn'); return; }
+      f.p[free] = n;
+    }
+    [0, 1, 2].forEach((i) => { $('f-p' + i).value = f.p[i]; });
+    syncForm();
+    return;
+  }
+
+  const b = e.target.closest('button');
+  if (!b) return;
+  if (b.id === 'f-save') {
+    const p = validate(st.form.d, st.form.p, 'f-msg');
+    if (!p) return;
+    const game = { d: st.form.d, p };
+    const ok = await commit((g) => g.concat([game]), `Game ${game.d}: ${p.join(', ')}`);
+    if (ok) {
+      st.form = { d: today(), p: ['', '', ''] };
+      st.season = seasonOf(game.d);
+      toast(`Saved. ${p[0]} wins ${fmtDate(game.d, 'short')}.`);
+      location.hash = '#table';
+      render();
+    }
+    return;
+  }
+  const act = b.dataset.act, k = b.dataset.k;
+  if (act === 'fclear') { st.form.p = ['', '', '']; render(); return; }
+  if (act === 'edit') { st.editKey = k; st.delKey = null; render(); return; }
+  if (act === 'ecancel') { st.editKey = null; render(); return; }
+  if (act === 'esave') {
+    const d = $('e-d').value, p = validate(d, [0, 1, 2].map((i) => $('e-p' + i).value), 'e-msg');
+    if (!p) return;
+    const key = st.editKey;
+    const ok = await commit((g) => { const i = g.findIndex((x) => gameKey(x) === key); if (i >= 0) g[i] = { d, p }; return g; }, `Edit game ${d}`);
+    if (ok) { st.editKey = null; render(); toast('Game updated.'); }
+    return;
+  }
+  if (act === 'del') { st.delKey = k; st.editKey = null; render(); return; }
+  if (act === 'delno') { st.delKey = null; render(); return; }
+  if (act === 'delyes') {
+    const ok = await commit((g) => g.filter((x) => gameKey(x) !== k), `Delete game ${k.split('|')[0]}`);
+    if (ok) { st.delKey = null; render(); toast('Game deleted.'); }
+    return;
+  }
+  if (act === 'rename') {
+    const to = canon($('rn').value), from = st.player;
+    if (!to) { setMsg('rn-msg', 'Enter a name.', 'err'); return; }
+    if (to === from) { setMsg('rn-msg', 'Same name.', 'err'); return; }
+    if (st.games.some((g) => g.p.includes(to) && g.p.includes(from))) { setMsg('rn-msg', `${from} and ${to} share a podium, so they can't be merged.`, 'err'); return; }
+    const ok = await commit((g) => g.map((x) => ({ d: x.d, p: x.p.map((n) => (n === from ? to : n)) })), `Rename ${from} to ${to}`);
+    if (ok) { st.player = to; render(); toast(`${from} is now ${to}.`); }
+  }
+});
+
+/* ---------- Sheets ---------- */
+function openSheet(id) { $(id).hidden = false; const f = $(id).querySelector('button,input'); if (f) setTimeout(() => f.focus(), 40); }
+function closeSheet(id) { $(id).hidden = true; }
+document.querySelectorAll('.sheet').forEach((sh) => sh.addEventListener('click', (e) => { if (e.target === sh || e.target.closest('[data-close]')) closeSheet(sh.id); }));
+addEventListener('keydown', (e) => { if (e.key === 'Escape') document.querySelectorAll('.sheet').forEach((s) => { s.hidden = true; }); });
+
+function renderSettings() {
+  const admin = isAdmin();
+  $('settings-panel').innerHTML = `<div class="sheet-head"><h2 id="set-title">Settings</h2><button class="icon-btn" type="button" data-close aria-label="Close">${icon('x')}</button></div>
+    <div class="stack">
+      <button class="btn" type="button" id="set-install">${icon('phone')}Add to home screen</button>
+      <button class="btn" type="button" id="set-share">${icon('share')}Share app link</button>
+    </div>
+    <h3 class="card-title" style="margin-top:22px">Admin</h3>
+    ${admin
+      ? `<p>Recording is on for this device.</p><button class="btn" type="button" id="set-logout">${icon('lock')}Turn off recording</button>`
+      : `<p>Paste the admin key to record games on this device.</p>
+         <div class="stack"><input class="input" type="password" id="set-token" placeholder="github_pat_…" autocomplete="off" spellcheck="false">
+         <button class="btn primary" type="button" id="set-save">${icon('lock')}Unlock recording</button><div class="msg" id="set-msg"></div></div>`}
+    <div style="margin-top:18px"><div class="kv"><span>Version</span><span class="num">${APP_VERSION}</span></div><div class="kv"><span>Games</span><span class="num">${st.games.length}</span></div></div>`;
+  $('set-install').onclick = () => { closeSheet('settings'); Install.open(); };
+  $('set-share').onclick = shareApp;
+  if (admin) $('set-logout').onclick = () => { st.token = ''; store.del('token'); if (st.tab === 'add') location.hash = '#table'; closeSheet('settings'); render(); toast('Recording off.'); };
+  else $('set-save').onclick = async () => {
+    const tok = $('set-token').value.trim();
+    if (!tok) { setMsg('set-msg', 'Paste the key first.', 'err'); return; }
+    setMsg('set-msg', 'Checking…');
+    try {
+      const r = await fetch(`https://api.github.com/repos/${REPO.owner}/${REPO.name}`, { headers: { Accept: 'application/vnd.github+json', Authorization: 'Bearer ' + tok } });
+      const j = r.ok ? await r.json() : null;
+      if (!j || !(j.permissions && j.permissions.push)) { setMsg('set-msg', 'This key can’t save to the repo.', 'err'); return; }
+      st.token = tok; store.set('token', tok);
+      closeSheet('settings'); location.hash = '#add'; render(); toast('Recording on.');
+    } catch { setMsg('set-msg', 'No connection.', 'err'); }
+  };
+}
+$('btn-settings').innerHTML = icon('settings');
+$('btn-settings').onclick = () => { renderSettings(); openSheet('settings'); };
+
+function shareApp() {
+  const text = 'Opfikon Rams · 75 Shootout standings';
+  const copy = () => { navigator.clipboard.writeText(APP_URL).then(() => toast('Link copied.'), () => toast(APP_URL)); };
+  if (navigator.share) navigator.share({ title: 'Rams 75', text, url: APP_URL }).catch((e) => { if (e && e.name !== 'AbortError') copy(); });
+  else copy();
+}
+$('btn-share').innerHTML = icon('share');
+$('btn-share').onclick = shareApp;
+
+/* ---------- Install (add to home screen) ---------- */
+const Install = (() => {
+  const ua = navigator.userAgent;
+  const ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  const android = /Android/.test(ua);
+  const inApp = /Instagram|FBAN|FBAV|FB_IAB|FBIOS|Line\/|Snapchat|TikTok|LinkedInApp|GSA\/|; wv\)/.test(ua);
+  const iosOther = ios && /CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
+  const samsung = /SamsungBrowser/.test(ua);
+  const standalone = navigator.standalone || matchMedia('(display-mode: standalone)').matches;
+  const browser = ios ? 'Safari' : 'Chrome';
+  let deferred = null;
+
+  addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferred = e; mount(); });
+  addEventListener('appinstalled', () => { store.set('installOff', true); deferred = null; mount(); });
+
+  function steps() {
+    const share = `<b>Share</b> ${icon('iosShare')}`;
+    if (inApp && (ios || android)) return {
+      intro: `Open this page in ${browser} first.`,
+      list: [`Tap <b>•••</b> or <b>⋮</b> and choose <b>Open in ${browser}</b>.`,
+             ios ? `Tap ${share}, then <b>Add to Home Screen</b>.` : 'Tap <b>⋮</b>, then <b>Add to Home screen</b>.',
+             `Tap <b>${ios ? 'Add' : 'Install'}</b>.`], copy: true };
+    if (ios) return {
+      intro: 'No App Store needed.',
+      list: [iosOther ? `Tap ${share} in the address bar.` : `Tap ${share}.<small>Bottom of the screen, or behind <b>•••</b> next to the address bar.</small>`,
+             'Tap <b>Add to Home Screen</b>.<small>Not listed? Tap <b>View More</b> first.</small>',
+             'Tap <b>Add</b>.'], copy: iosOther };
+    if (android) return {
+      intro: 'No Play Store needed.',
+      list: samsung ? ['Tap <b>☰</b> at the bottom right.', 'Tap <b>Add page to</b> → <b>Home screen</b>.', 'Tap <b>Add</b>.']
+                    : ['Tap <b>⋮</b> at the top right.', 'Tap <b>Add to Home screen</b> or <b>Install app</b>.', 'Tap <b>Install</b>.'], copy: false };
+    return {
+      intro: 'Open the link on your phone.',
+      list: [`<b>iPhone:</b> Safari → ${share} → <b>Add to Home Screen</b>.`, '<b>Android:</b> Chrome → <b>⋮</b> → <b>Add to Home screen</b>.'], copy: true };
+  }
+
+  function open() {
+    if (deferred) { deferred.prompt(); deferred.userChoice.finally(() => { deferred = null; mount(); }); return; }
+    const t = steps();
+    $('how-panel').innerHTML = `<div class="sheet-head"><h2 id="how-title">Add to home screen</h2><button class="icon-btn" type="button" data-close aria-label="Close">${icon('x')}</button></div>
+      <p>${t.intro}</p><ol class="steps">${t.list.map((x) => `<li><div>${x}</div></li>`).join('')}</ol>
+      <div class="stack">${t.copy ? `<button class="btn" type="button" id="how-copy">${icon('copy')}Copy link</button>` : ''}<button class="btn primary" type="button" data-close>Done</button></div>`;
+    const c = $('how-copy');
+    if (c) c.onclick = () => navigator.clipboard.writeText(APP_URL).then(() => toast('Link copied.'), () => toast(APP_URL));
+    openSheet('how');
+  }
+
+  function mount() {
+    const slot = $('install-slot');
+    if (!slot) return;
+    const show = !standalone && !store.get('installOff', false) && (ios || android || deferred);
+    slot.innerHTML = show ? `<div class="banner"><img src="icons/icon-192.png" alt="">
+      <div><b>Get the app</b><p>${inApp ? `Open in ${browser} to install.` : 'Add Rams 75 to your home screen.'}</p>
+      <div class="row"><button class="btn primary" type="button" id="inst-go">${icon(deferred ? 'download' : 'phone', 'sm')}${deferred ? 'Install' : 'Show me how'}</button></div></div>
+      <button class="icon-btn" type="button" id="inst-x" aria-label="Dismiss">${icon('x', 'sm')}</button></div>` : '';
+    if (!show) return;
+    $('inst-go').onclick = open;
+    $('inst-x').onclick = () => { store.set('installOff', true); mount(); toast('Find it again in Settings.'); };
+  }
+  return { open, mount };
+})();
+
+/* ---------- Auto update ----------
+   Bump APP_VERSION here and in version.json on each release. Open apps reload into the new version. */
+const busy = () => st.saving || !!st.editKey || st.form.p.some((x) => x.trim()) || [...document.querySelectorAll('.sheet')].some((s) => !s.hidden);
+function applyUpdate(v) { const u = new URL(location.href); u.searchParams.set('v', v); location.replace(u.toString()); }
+async function checkUpdate() {
+  try {
+    const r = await fetch(`version.json?t=${Date.now()}`, { cache: 'no-store' });
+    if (!r.ok) return;
+    const { version } = await r.json();
+    if (!version || version === APP_VERSION) return;
+    const tried = new URL(location.href).searchParams.get('v') === version;
+    if (busy() || tried) toast(`Version ${version} is ready.`, { label: 'Update', run: () => applyUpdate(version) });
+    else applyUpdate(version);
+  } catch {}
+}
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') return;
+  checkUpdate();
+  if (Date.now() - lastLoad > 30000) load(true);
+});
+setInterval(() => { if (document.visibilityState === 'visible') load(true); }, 120000);
+
+/* ---------- Boot ---------- */
+addEventListener('scroll', () => $('appbar').classList.toggle('scrolled', scrollY > 4), { passive: true });
+let resizeT;
+addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => { if (st.tab === 'race') drawRace(); if (st.tab === 'players') drawSeasonBars(); }, 150); });
+readHash();
+st.season = seasons()[0] || null;
+render();
+load(false);
+setTimeout(checkUpdate, 1500);
+})();
+</script>
+</body>
+</html>

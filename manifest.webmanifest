@@ -1,0 +1,16 @@
+{
+  "name": "Opfikon Rams · 75 Shootout",
+  "short_name": "Rams 75",
+  "description": "75 Shootout standings for the Opfikon Rams.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#14161e",
+  "theme_color": "#14161e",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
