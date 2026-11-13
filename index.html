@@ -251,7 +251,7 @@ svg.i.sm{width:16px;height:16px}
 (() => {
 'use strict';
 
-const APP_VERSION = '1.0.1';
+const APP_VERSION = '1.0.2';
 const REPO = { owner: 'haruku08', name: 'opfikon-rams', path: 'data/games.json', branch: 'main' };
 const APP_URL = 'https://haruku08.github.io/opfikon-rams/';
 const HARUKU_URL = 'https://haruku08.github.io/workouts/';
@@ -867,8 +867,8 @@ const Install = (() => {
              ios ? `Tap ${share}, then <b>Add to Home Screen</b>.` : 'Tap <b>⋮</b>, then <b>Add to Home screen</b>.',
              `Tap <b>${ios ? 'Add' : 'Install'}</b>.`], copy: true };
     if (ios) return {
-      intro: 'No App Store needed.',
-      list: [iosOther ? `Tap ${share} in the address bar.` : `Tap ${share}.<small>Bottom of the screen, or behind <b>•••</b> next to the address bar.</small>`,
+      intro: iosOther ? 'Open this link in Safari. Other browsers don’t use the Rams app icon.' : 'No App Store needed.',
+      list: [iosOther ? `In Safari, tap ${share}.` : `Tap ${share}.<small>Bottom of the screen, or behind <b>•••</b> next to the address bar.</small>`,
              'Tap <b>Add to Home Screen</b>.<small>Not listed? Tap <b>View More</b> first.</small>',
              'Tap <b>Add</b>.'], copy: iosOther, note: 'Recording games? Unlock it again in the home screen app under Settings.' };
     if (android) return {
