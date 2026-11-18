@@ -283,7 +283,7 @@ svg.i.sm{width:16px;height:16px}
 (() => {
 'use strict';
 
-const APP_VERSION = '1.1.0';
+const APP_VERSION = '1.1.1';
 const REPO = { owner: 'haruku08', name: 'opfikon-rams', path: 'data/games.json', branch: 'main' };
 const APP_URL = 'https://haruku08.github.io/opfikon-rams/';
 const HARUKU_URL = 'https://haruku08.github.io/workouts/';
@@ -431,37 +431,57 @@ async function load(quiet) {
   }
 }
 
+const KEY_PROBLEM = {
+  401: 'The key is invalid or expired. Create a new one.',
+  403: 'The key can’t write. Set Contents to “Read and write”.',
+  404: 'The key doesn’t include opfikon-rams. Add the repo to it.',
+};
+const keyError = (status) => Object.assign(new Error('key'), { code: status });
+
+// Tests write access without changing anything: a PUT with a wrong sha is refused
+// with 409/422 only when the key may write, and with 401/403/404 when it may not.
+async function checkKey(tok) {
+  const h = { Accept: 'application/vnd.github+json', Authorization: 'Bearer ' + tok, 'Content-Type': 'application/json' };
+  const r = await fetch(API, { method: 'PUT', headers: h, body: JSON.stringify({ message: 'key check', content: b64encode(' '), sha: '0'.repeat(40), branch: REPO.branch }) });
+  if (r.status === 409 || r.status === 422) return null;
+  return KEY_PROBLEM[r.status] || `GitHub said ${r.status}. Try again.`;
+}
+
 async function commit(transform, message) {
-  if (!st.token) return;
+  if (!st.token) return false;
   st.saving = true; render();
-  for (let attempt = 0; attempt < 2; attempt++) {
-    try {
+  try {
+    for (let attempt = 0; attempt < 3; attempt++) {
       const head = await fetch(`${API}?ref=${REPO.branch}&t=${Date.now()}`, { headers: headers(), cache: 'no-store' });
-      if (head.status === 401) throw Object.assign(new Error('auth'), { code: 401 });
-      const cur = head.ok ? await head.json() : null;
-      const base = cur ? JSON.parse(b64decode(cur.content)).games : st.games;
-      const next = transform(base.slice()).sort(byDate);
+      if (!head.ok) throw keyError(head.status);
+      const cur = await head.json();
+      const next = transform(JSON.parse(b64decode(cur.content)).games.slice()).sort(byDate);
       const r = await fetch(API, {
         method: 'PUT',
         headers: { ...headers(), 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message, content: b64encode(serialize(next)), branch: REPO.branch, ...(cur ? { sha: cur.sha } : {}) }),
+        body: JSON.stringify({ message, content: b64encode(serialize(next)), branch: REPO.branch, sha: cur.sha }),
       });
-      if (r.status === 409 || r.status === 422) continue;
-      if (r.status === 401 || r.status === 403 || r.status === 404) throw Object.assign(new Error('auth'), { code: r.status });
-      if (!r.ok) throw new Error(r.status);
+      if (r.status === 409) continue;
+      if (!r.ok) throw keyError(r.status);
       const j = await r.json();
       st.games = next; st.sha = j.content.sha; store.set('games', next);
+      st.keyProblem = null;
       st.saving = false;
       return true;
-    } catch (e) {
-      st.saving = false; render();
-      toast(e.code ? 'Admin key rejected. Check it in Settings.' : 'Not saved. Check your connection.');
-      return false;
     }
+    throw new Error('busy');
+  } catch (e) {
+    st.saving = false;
+    if (e.code && KEY_PROBLEM[e.code]) {
+      st.keyProblem = KEY_PROBLEM[e.code];
+      render();
+      toast('Not saved. ' + st.keyProblem, { label: 'Settings', run: () => { renderSettings(); openSheet('settings'); } });
+    } else {
+      render();
+      toast(e.message === 'busy' ? 'Not saved. Someone else was saving, try again.' : e.code ? `Not saved. GitHub said ${e.code}.` : 'Not saved. Check your connection.');
+    }
+    return false;
   }
-  st.saving = false; render();
-  toast('Not saved. Someone else saved at the same time, try again.');
-  return false;
 }
 
 /* ---------- Routing ---------- */
@@ -581,7 +601,7 @@ function viewAdd() {
   const f = st.form;
   const recent = [];
   for (let i = st.games.length - 1; i >= 0 && recent.length < 18; i--) st.games[i].p.forEach((n) => { if (!recent.includes(n) && recent.length < 18) recent.push(n); });
-  return `<div class="view-head"><h1>New game</h1></div>
+  return `<div class="view-head"><h1>New game</h1></div>${st.keyProblem ? `<div class="card"><p class="msg err" style="margin:0">${esc(st.keyProblem)}</p></div>` : ''}
   <section class="card"><div class="fields">
     <div class="field"><label for="f-d">Date</label><input class="input" type="date" id="f-d" value="${f.d}"></div>
     ${[0, 1, 2].map((i) => `<div class="field"><label for="f-p${i}"><span class="medal m${i + 1}">${i + 1}</span>${['1st · 3 pts', '2nd · 2 pts', '3rd · 1 pt'][i]}</label><input class="input" type="text" id="f-p${i}" list="plist" autocomplete="off" autocapitalize="words" placeholder="Name" value="${esc(f.p[i])}"></div>`).join('')}
@@ -856,7 +876,7 @@ function renderSettings() {
     <div class="seg" role="radiogroup" aria-label="Appearance">${[['auto', 'Auto'], ['light', 'Light'], ['dark', 'Dark']].map(([v, l]) => `<button type="button" role="radio" aria-checked="${theme === v}" data-theme-opt="${v}">${l}</button>`).join('')}</div>
     <h3 class="card-title" style="margin-top:22px">Admin</h3>
     ${admin
-      ? `<p>Recording is on for this device.</p><button class="btn" type="button" id="set-logout">${icon('lock')}Turn off recording</button>`
+      ? `${st.keyProblem ? `<p class="msg err">${esc(st.keyProblem)}</p>` : '<p>Recording is on for this device.</p>'}<button class="btn" type="button" id="set-logout">${icon('lock')}Turn off recording</button>`
       : `<p>Paste the admin key to record games on this device.${standalone() ? '' : ' Saved to your home screen? Open the app from there and paste it again, the home screen app keeps its own settings.'}</p>
          <div class="stack"><input class="input" type="password" id="set-token" placeholder="github_pat_…" autocomplete="off" spellcheck="false">
          <button class="btn primary" type="button" id="set-save">${icon('lock')}Unlock recording</button><div class="msg" id="set-msg"></div></div>`}
@@ -870,10 +890,9 @@ function renderSettings() {
     if (!tok) { setMsg('set-msg', 'Paste the key first.', 'err'); return; }
     setMsg('set-msg', 'Checking…');
     try {
-      const r = await fetch(`https://api.github.com/repos/${REPO.owner}/${REPO.name}`, { headers: { Accept: 'application/vnd.github+json', Authorization: 'Bearer ' + tok } });
-      const j = r.ok ? await r.json() : null;
-      if (!j || !(j.permissions && j.permissions.push)) { setMsg('set-msg', 'This key can’t save to the repo.', 'err'); return; }
-      st.token = tok; store.set('token', tok);
+      const problem = await checkKey(tok);
+      if (problem) { setMsg('set-msg', problem, 'err'); return; }
+      st.token = tok; st.keyProblem = null; store.set('token', tok);
       closeSheet('settings'); location.hash = '#add'; render(); toast('Recording on.');
     } catch { setMsg('set-msg', 'No connection.', 'err'); }
   };
@@ -984,6 +1003,7 @@ st.season = seasons()[0] || null;
 render();
 load(false);
 setTimeout(checkUpdate, 1500);
+if (st.token) checkKey(st.token).then((problem) => { st.keyProblem = problem; if (problem && (st.tab === 'add')) render(); }).catch(() => {});
 })();
 </script>
 </body>
